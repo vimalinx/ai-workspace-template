@@ -2,6 +2,13 @@
 
 All notable changes are documented here. This project follows semantic versioning after `0.1.0` and uses prerelease identifiers while public contracts may still change.
 
+## [0.1.0-alpha.2] - 2026-08-22
+
+### Changed
+
+- Upgrade the official checkout and Python setup actions to their current Node 24-based v7 major versions, eliminating runner deprecation annotations.
+- Redact public commit and annotated-tag emails to the maintainer's ID-based GitHub noreply address and add a release guard that prevents recurrence.
+
 ## [0.1.0-alpha.1] - 2026-08-22
 
 ### Added

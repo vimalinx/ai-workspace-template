@@ -54,6 +54,30 @@ class ReleaseCheckTests(unittest.TestCase):
             self.assertIn("GIT_REMOTE_MISSING", codes)
             self.assertIn("GIT_WORKTREE_DIRTY", codes)
 
+    def test_non_noreply_commit_and_tag_identities_fail(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for relative in REQUIRED_FILES:
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("placeholder\n", encoding="utf-8")
+            (root / "LICENSE").write_text(
+                "Apache License\nVersion 2.0, January 2004\nEND OF TERMS AND CONDITIONS\n",
+                encoding="utf-8",
+            )
+            (root / "VERSION").write_text("0.1.0-alpha.1\n", encoding="utf-8")
+            (root / "CHANGELOG.md").write_text("## [0.1.0-alpha.1]\n", encoding="utf-8")
+            (root / ".gitignore").write_text(".ai/\n", encoding="utf-8")
+            subprocess.run(["git", "init", "-q", str(root)], check=True)
+            subprocess.run(["git", "-C", str(root), "config", "user.name", "Fixture"], check=True)
+            subprocess.run(["git", "-C", str(root), "config", "user.email", "public@example.com"], check=True)
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture"], check=True)
+            subprocess.run(["git", "-C", str(root), "tag", "-am", "fixture", "v0.1.0-alpha.1"], check=True)
+            codes = {finding.code for finding in check_release(root)}
+            self.assertIn("PUBLIC_COMMIT_EMAIL_EXPOSED", codes)
+            self.assertIn("PUBLIC_TAG_EMAIL_EXPOSED", codes)
+
 
 if __name__ == "__main__":
     unittest.main()

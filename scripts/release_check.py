@@ -39,6 +39,7 @@ BANNED_PUBLIC_PATTERNS = (
     ("PRIVATE_WORKSPACE_NAME", re.compile(r"~/hao\b|MakeMoney/Coins|NAT-codex|COINS-PRACTICE|HAO-EXTRACTION", re.IGNORECASE)),
 )
 SEMVER_RE = re.compile(r"^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?$")
+GITHUB_NOREPLY_RE = re.compile(r"^(?:\d+\+)?[A-Za-z0-9-]+@users\.noreply\.github\.com$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -86,6 +87,61 @@ def ai_is_ignored(root: Path) -> bool:
     return checked.returncode == 0
 
 
+def is_repository_root(root: Path) -> bool:
+    probe = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+    )
+    return probe.returncode == 0 and Path(probe.stdout.strip()).resolve() == root
+
+
+def public_identity_findings(root: Path) -> list[Finding]:
+    """Reject personal email identities in public branch and tag history."""
+    if not is_repository_root(root):
+        return []
+    findings: list[Finding] = []
+    commits = subprocess.run(
+        ["git", "-C", str(root), "log", "--format=%H%x00%ae%x00%ce", "--branches", "--tags"],
+        capture_output=True,
+        text=True,
+    )
+    for row in commits.stdout.splitlines():
+        fields = row.split("\0")
+        if len(fields) != 3:
+            continue
+        commit, author_email, committer_email = fields
+        if not GITHUB_NOREPLY_RE.fullmatch(author_email) or not GITHUB_NOREPLY_RE.fullmatch(committer_email):
+            findings.append(
+                Finding(
+                    "PUBLIC_COMMIT_EMAIL_EXPOSED",
+                    commit,
+                    "a reachable public commit uses a non-GitHub-noreply author or committer email",
+                    "rewrite the affected history and configure an ID-based GitHub noreply email before publication",
+                )
+            )
+    tags = subprocess.run(
+        ["git", "-C", str(root), "for-each-ref", "--format=%(refname:short)%00%(objecttype)%00%(taggeremail)", "refs/tags"],
+        capture_output=True,
+        text=True,
+    )
+    for row in tags.stdout.splitlines():
+        fields = row.split("\0")
+        if len(fields) != 3 or fields[1] != "tag":
+            continue
+        email = fields[2].strip().removeprefix("<").removesuffix(">")
+        if not GITHUB_NOREPLY_RE.fullmatch(email):
+            findings.append(
+                Finding(
+                    "PUBLIC_TAG_EMAIL_EXPOSED",
+                    fields[0],
+                    "an annotated public tag uses a non-GitHub-noreply tagger email",
+                    "recreate the tag with an ID-based GitHub noreply email before publication",
+                )
+            )
+    return findings
+
+
 def check_git_publication_state(root: Path) -> list[Finding]:
     findings: list[Finding] = []
     repository = subprocess.run(
@@ -108,6 +164,13 @@ def check_git_publication_state(root: Path) -> list[Finding]:
     )
     if status.returncode != 0 or status.stdout.strip():
         findings.append(Finding("GIT_WORKTREE_DIRTY", ".", "strict publication preflight requires a clean reviewed tree", "commit or deliberately exclude every remaining change"))
+    configured_email = subprocess.run(
+        ["git", "-C", str(root), "config", "--local", "--get", "user.email"],
+        capture_output=True,
+        text=True,
+    )
+    if configured_email.returncode != 0 or not GITHUB_NOREPLY_RE.fullmatch(configured_email.stdout.strip()):
+        findings.append(Finding("GIT_NOREPLY_EMAIL_NOT_CONFIGURED", ".git/config", "future commits are not protected by a repository-local GitHub noreply email", "configure the active account's ID-based GitHub noreply address locally"))
     return findings
 
 
@@ -135,6 +198,8 @@ def check_release(root: Path, *, strict_git: bool = False) -> list[Finding]:
 
     if not ai_is_ignored(root):
         findings.append(Finding("PRIVATE_LEDGER_NOT_IGNORED", ".ai/", "local AI evidence could enter a public commit", "ignore .ai/ at the repository root and export reviewed evidence elsewhere"))
+
+    findings.extend(public_identity_findings(root))
 
     for path in public_text_files(root):
         relative = path.relative_to(root).as_posix()

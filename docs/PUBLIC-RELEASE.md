@@ -18,7 +18,7 @@ python3 scripts/release_check.py
 git add -n .
 ```
 
-The first three commands must exit zero. The dry-run staging list must contain only deliberate public source files. After the repository has an initial commit and remote, run `python3 scripts/release_check.py --strict-git` as the final publication preflight.
+The first three commands must exit zero. The dry-run staging list must contain only deliberate public source files. Public commits and annotated tags must use an ID-based GitHub noreply address. After the repository has an initial commit and remote, run `python3 scripts/release_check.py --strict-git` as the final publication preflight; it also confirms the repository-local email protects future commits.
 
 ## 3. Publish with explicit authority
 

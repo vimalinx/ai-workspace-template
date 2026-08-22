@@ -12,6 +12,8 @@ Thank you for helping improve AI Workspace Template.
 
 Requirements: Git, a POSIX shell, and Python 3.11 or newer. Runtime code uses only the Python standard library.
 
+This privacy-first repository requires public commits and annotated tags to use the contributor's GitHub-provided noreply address. Maintainers should also configure that address in the repository-local Git configuration before running the strict publication preflight.
+
 ```bash
 python3 -m unittest discover -s tests -v
 python3 scripts/workspace_audit.py --run-adapters
