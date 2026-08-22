@@ -1,0 +1,19 @@
+schema_version = 1
+
+# 一个直接子目录对应一个 [[items]] 条目。目录本身是真实存在性的权威来源；
+# 本表只负责身份、生命周期、负责人和验证入口。当前没有工作项；新增时直接写
+# [[items]]，不要先声明空数组。
+
+# 示例：
+# [[items]]
+# id = "example-project"
+# path = "projects/example-project"
+# kind = "project"
+# status = "active"
+# owner = "name-or-team"
+# verify = ["python3", "-m", "unittest"]
+#
+# services/* 还必须声明：
+# healthcheck = ["python3", "services/example/healthcheck.py"]
+# deploy_runbook = "services/example/docs/deploy.md"
+# rollback_runbook = "services/example/docs/rollback.md"

@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose one scoped governance capability or workflow improvement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and user outcome
+      description: Describe the durable problem, not only a preferred implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Authority and safety boundary
+      description: State what the feature may observe or change and what still requires human approval.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: List positive and negative tests that would prove the contract.
+    validations:
+      required: true

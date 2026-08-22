@@ -1,0 +1,12 @@
+schema_version = 1
+
+[[automations]]
+id = "workspace-maintenance"
+purpose = "运行只读治理审计并刷新机器可读派生报告"
+command = ["python3", "scripts/workspace_maintenance.py", "--skip-git-hook"]
+schedule = "建议每周运行；由实际环境的 cron、systemd 或 CI 安装"
+owner = "workspace-owner"
+status = "declared"
+
+# status=declared 只证明工作区希望存在这项自动化，不证明外部调度器已安装。
+# 对运行状态有要求时，在具体领域添加环境适配器和真实探针。

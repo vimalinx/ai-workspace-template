@@ -1,0 +1,12 @@
+schema_version = 1
+
+# 领域适配器必须只观察并输出 JSON；默认审计只验证声明，不执行它们。
+# 使用 --run-adapters 才会执行 status=active 的条目。
+#
+# [[adapters]]
+# id = "example-domain-probe"
+# purpose = "核对领域自己的动态事实"
+# command = ["python3", "governance/adapters/example_probe.py"]
+# timeout_seconds = 30
+# owner = "workspace-owner"
+# status = "active"

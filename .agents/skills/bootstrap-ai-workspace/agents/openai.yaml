@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bootstrap AI Workspace"
+  short_description: "Initialize or safely organize governed workspaces"
+  default_prompt: "Use $bootstrap-ai-workspace to initialize or safely organize this workspace."

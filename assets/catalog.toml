@@ -1,0 +1,12 @@
+schema_version = 1
+
+# 只登记位置、责任和版本控制边界，不登记 secret 值。新增时使用 [[assets]]。
+#
+# [[assets]]
+# id = "production-credentials-location"
+# path = ".secrets/production"
+# kind = "secret-location"
+# owner = "workspace-owner"
+# tracked = false
+# movable = false
+# required = false

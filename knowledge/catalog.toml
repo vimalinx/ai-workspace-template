@@ -1,0 +1,12 @@
+schema_version = 1
+
+# 每个 knowledge/curated/**/*.md（README.md 除外）都要登记。当前无条目；新增时
+# 直接写 [[entries]]，不要先声明空数组。
+
+# 示例：
+# [[entries]]
+# id = "reusable-rule"
+# title = "一条经过验证的通用规则"
+# path = "knowledge/curated/reusable-rule.md"
+# status = "active"
+# evidence = ["RUN-...", "DEC-..."]
