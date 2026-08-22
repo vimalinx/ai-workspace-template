@@ -2,6 +2,12 @@
 
 All notable changes are documented here. This project follows semantic versioning after `0.1.0` and uses prerelease identifiers while public contracts may still change.
 
+## [Unreleased]
+
+### Changed
+
+- Rewrite the public README around human-AI workflows and practical use cases, with native Mermaid diagrams covering the evidence loop, complete work-item routing and state transitions, approval boundaries, and adoption/activation/rollback; move technical details behind progressive disclosure.
+
 ## [0.1.0-alpha.2] - 2026-08-22
 
 ### Changed

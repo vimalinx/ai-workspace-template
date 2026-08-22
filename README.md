@@ -1,86 +1,186 @@
 # AI Workspace Template
 
-这是一个领域无关、隐私优先的 AI 工作区模板。当前版本是 `0.1.0-alpha.2`，以 GitHub Template Repository 的形式分发；运行代码只依赖 Python 标准库，不是 pip 包，也不绑定某个模型、Agent 或云服务。
+让 AI 不只会“帮你做一次”，还知道怎样和你一起把事情长期维护好。
 
-它解决的是“人和 AI 如何长期共同维护一个真实工作区”：把文件放到正确生命周期、区分声明和运行事实、让变更可审阅可回滚、把测试证据和策展知识分开，并用机器审计阻止无主债务与文档漂移。它不是自动替你部署服务、操作凭据、安装外部调度器或发布内容的自治平台。
+这是一个面向真实工作的 AI 工作区模板。它适合软件项目、研究、内容生产、个人运营，以及任何会不断积累文件、决定、经验和自动化的长期事务。
 
-核心循环：
+很多工作区一开始都很轻松：先建几个文件夹，想到什么就让 AI 写什么。时间一长，问题才慢慢出现——草稿和正式成果混在一起，README 与实际状态对不上，失败过程找不到，自动化到底有没有运行也没人说得清。AI 越能干，混乱往往来得越快。
 
-```text
-意图路由 → 分层落位 → 生命周期门槛 → 唯一事实源
-        → 机器审计 → 提交闸门 → 周期巡检 → 债务问责
-        → 证据沉淀 → 知识晋升
+这个模板想解决的就是这件事：给人和 AI 一套简单、可检查的共同工作方式。
+
+> 当前版本：`0.1.0-alpha.2`。已经可以用于新工作区和现有工作区的安全接管；公开契约仍可能在 `0.1.0` 前调整。
+
+## 它会怎样改变你的工作方式
+
+它不会要求 AI 记住所有事情，而是让重要信息在合适的阶段留下来：
+
+```mermaid
+flowchart TD
+    A[用户意图] --> B[归入合适的生命周期]
+    B --> C[AI 执行任务]
+    C --> D[测试并保留真实证据]
+    D --> E{验证通过吗?}
+    E -- 否 --> F{本轮能安全处理吗?}
+    F -- 能 --> C
+    F -- 不能 --> G[登记债务或等待条件]
+    E -- 是 --> H[交付并同步当前事实]
+    H --> I[审计结构、状态与漂移]
+    I -- 有问题 --> F
+    I -- 清洁 --> J{经验值得复用吗?}
+    J -- 是，确认后 --> K[晋升为策展知识]
+    J -- 否 --> L[进入下一轮工作]
+    K --> L
+    G --> L
 ```
 
-## 快速开始
+你会得到几件很朴素、但很重要的东西：
 
-环境要求：Python 3.11–3.14、Git 2.x 和 POSIX shell；Linux 与 macOS 进入 CI，Windows 暂未支持。可以从 GitHub 的 **Use this template** 创建仓库，也可以克隆本仓库后对另一个绝对路径执行接管流程。
+- 新想法有临时落脚处，不会一开始就被包装成“正式项目”。
+- 长期项目、常驻服务和复用工具有各自的责任与完成标准。
+- AI 做过的测试、失败和关键决定都有证据可追，不靠聊天记忆。
+- 文档、状态和实际文件会定期对账；发现漂移，就修复或明确记成有负责人、有期限的债务。
+- 真正稳定的经验可以沉淀为知识，未经验证的模型输出不会悄悄变成事实。
 
-如果要初始化新工作区，或在不覆盖现有业务文件的前提下接管旧工作区，先使用项目内 Skill：
+## 一项工作从哪里开始，又到哪里结束
 
-```bash
-python3 .agents/skills/bootstrap-ai-workspace/scripts/workspace_tool.py inspect /absolute/target --json
-python3 .agents/skills/bootstrap-ai-workspace/scripts/workspace_tool.py plan /absolute/target \
-  --mode auto --template-root "$PWD" --output /absolute/target/.workspace/plans/adopt.json
-# 审阅计划 JSON，封印所审阅的精确字节，再执行：
-python3 .agents/skills/bootstrap-ai-workspace/scripts/workspace_tool.py review \
-  /absolute/target/.workspace/plans/adopt.json --reviewer "$USER" \
-  --output /absolute/target/.workspace/plans/adopt.review.json
-python3 .agents/skills/bootstrap-ai-workspace/scripts/workspace_tool.py apply \
-  /absolute/target/.workspace/plans/adopt.json \
-  --review-receipt /absolute/target/.workspace/plans/adopt.review.json
+工作先按性质落位，不确定或一次性的事情先探索；确认值得长期维护后，再经人确认“毕业”为项目、服务或工具。这比一开始猜它应该是什么，更容易保持工作区干净。
 
-# 在目标中另行审阅并激活 Git、内置 ledger 与 hook：
-python3 /absolute/target/scripts/workspace_activate.py plan /absolute/target \
-  --init-git --init-ledger --install-hook \
-  --output /absolute/target/.workspace/plans/activate.json
-python3 /absolute/target/scripts/workspace_activate.py review \
-  /absolute/target/.workspace/plans/activate.json --reviewer "$USER" \
-  --output /absolute/target/.workspace/plans/activate.review.json
-python3 /absolute/target/scripts/workspace_activate.py apply \
-  /absolute/target/.workspace/plans/activate.json \
-  --review-receipt /absolute/target/.workspace/plans/activate.review.json
+```mermaid
+flowchart TD
+    A[收到新任务] --> B{工作性质是什么?}
+    B -- 不确定、探索或一次性 --> W[工作台：调查、原型、试错]
+    B -- 长期交付物 --> P[项目]
+    B -- 需要持续运行 --> S[服务]
+    B -- 跨项目复用执行器 --> T[工具]
+
+    W --> C{探索结论是什么?}
+    C -- 一次性完成或不再继续 --> X[保留结果与证据后结题]
+    C -- 经确认毕业为项目 --> P
+    C -- 经确认毕业为服务 --> S
+    C -- 经确认毕业为工具 --> T
+
+    P --> R[活跃或维护中]
+    S --> R
+    T --> R
+    R --> N{下一状态}
+    N -- 继续 --> R
+    N -- 暂停或阻塞 --> Q[记录原因、负责人和下一步]
+    Q -- 条件满足后恢复 --> R
+    Q -- 决定不再继续 --> E
+    N -- 项目或工具达到交付门槛 --> D[完成：交付物、证据、结论与后续状态齐全]
+    N -- 不再维护 --> E[退役：记录原因、替代物与恢复边界]
+    D -- 后续不再维护 --> E
+    E --> F[进入归档并保留墓碑]
 ```
 
-完整的人/AI 协作流程、权限边界和回滚方法见 [bootstrap-ai-workspace Skill](.agents/skills/bootstrap-ai-workspace/SKILL.md)。
+完成和退役不是一回事：完成表示承诺已经交付，退役表示对象不再维护。暂停和阻塞也不会被当作失败，它们会保留原因、负责人和恢复条件。
 
-1. 修改 [`workspace.toml`](workspace.toml) 的名称、目录层和状态集合。
-2. 新工作先进入 `workbench/`；需要长期维护后再迁入 `projects/` 或 `services/`。
-3. 每个一级工作项都在 [`governance/catalog.toml`](governance/catalog.toml) 登记，并自带 `README.md`。
-4. 真实测试、重要决策和迭代证据进入项目 `.ai/` ledger；知识原料进入 `knowledge/raw/`。
-5. 用 [`workspace_activate.py`](scripts/workspace_activate.py) 的独立计划初始化 Git、AI ledger 并安装提交闸门。状态可只读查看：
+在实际协作里，你不必手动维护所有表格。AI 会读取当前工作项、状态和最近证据，在完成任务的同时同步受影响的说明与登记信息；收尾前再跑一次审计，确认没有留下无人负责的问题。
 
-   ```bash
-   python3 scripts/workspace_activate.py status .
-   ```
+## AI 自动维护到底会做什么
 
-   ledger 初始化由模板内置完成，不要求提前安装额外 CLI。
+这里的“自动维护”不是让 AI 擅自整理整个硬盘，而是把维护分成清楚的边界：
 
-6. 运行对账和测试：
+```mermaid
+flowchart TD
+    A[观察现状并提出动作] --> B{只涉及低风险、任务内、可验证的同步吗?}
+    B -- 是 --> C[执行修改]
+    C --> D[运行测试]
+    D --> E[同步相关说明与登记]
+    E --> F[审计并刷新可重建报告]
 
-   ```bash
-   python3 scripts/workspace_audit.py --run-adapters
-   python3 -m unittest discover -s tests -v
-   ```
+    B -- 否 --> G["需要确认<br/>生命周期变化、删除或大规模迁移<br/>关闭债务、知识晋升<br/>部署、调度、凭据或外部写入<br/>提交、推送与发布"]
+    G --> H[说明影响、验证方法和回退边界]
+    H --> I{获得明确授权吗?}
+    I -- 是 --> J[按审阅后的计划执行]
+    J --> D
+    I -- 否 --> K[不执行，并保留边界或阻塞说明]
+```
 
-7. 给 cron、systemd、CI 或其他调度器调用：
+这种设计的目标不是限制 AI，而是让它在可以放心行动的地方更主动，在会改变历史、外部系统或事实认定的地方停下来找你确认。
 
-   ```bash
-   python3 scripts/workspace_maintenance.py
-   ```
+## 开始使用
 
-   它只更新 `.workspace/runtime/audit-latest.json` 这份派生报告，不自动删除、迁移、归档或关闭债务。
+最简单的方式，是点击 GitHub 的 **Use this template** 创建自己的仓库，然后把它交给你常用的编码 Agent。
 
-## 隐私与发布边界
+第一次可以直接这样告诉 AI：
 
-- `.ai/`、`.workspace/`、原生会话、日志、数据库、凭据和运行时报告默认是本地私有材料；根 `.gitignore` 阻止 `.ai/` 进入公共提交。
-- 仓库不包含遥测，也不会上传工作区内容；只有显式带参数时才运行领域 adapter 或项目 verifier。
-- 需要公开实验依据时，先脱敏并导出经过审阅的证据，不要直接提交整个本地 ledger。
-- 删除、大规模迁移、知识晋升、部署、外部调度器、凭据、commit、push 和发布始终需要独立授权。
+> 请使用项目里的 `bootstrap-ai-workspace` Skill 检查这个工作区。先告诉我现状和接管计划，不要删除、移动或覆盖已有文件；我审阅后再应用。
 
-## 维护与发布检查
+它会按下面的过程工作：
 
-贡献者和维护者在提交前运行：
+```mermaid
+flowchart TD
+    A[检查现状] --> B[生成变更计划]
+    B --> C[人审阅]
+    C --> D{计划和目标仍未变化吗?}
+    D -- 否 --> B
+    D -- 是 --> E[安全应用并生成回执]
+    E --> F{验证通过吗?}
+    F -- 否 --> G{能在本轮安全修复吗?}
+    G -- 能 --> H[修复治理范围内的问题]
+    H --> F
+    G -- 不能 --> I[按回执回滚或停止协调]
+
+    F -- 是 --> J[检查本地激活状态]
+    J --> K{需要 Git、证据账本或提交闸门吗?}
+    K -- 不需要 --> O[开始日常协作]
+    K -- 需要 --> L[单独规划并审阅激活操作]
+    L --> M[应用激活计划并生成回执]
+    M --> N{激活验证通过吗?}
+    N -- 是 --> O
+    N -- 否 --> P[按激活回执回滚或人工协调]
+```
+
+这个流程既可以初始化一个新目录，也可以接管已经使用很久、甚至还有未提交修改的现有工作区。默认只做增量补充，不会把你的业务文件硬套进模板目录。Git、证据账本和提交闸门属于本地操作能力，需要在文件接管通过后单独规划和激活；验证失败时，优先修复本轮范围内的治理问题，只有不宜继续时才按回执回滚。
+
+完成第一次接管后，日常使用并不复杂：
+
+1. 把新任务交给 AI；不确定的工作先探索。
+2. 让 AI 实现、测试，并保留关键证据和失败过程。
+3. 达到长期维护条件时，经确认后再把工作毕业为项目、服务或工具。
+4. 每轮结束运行工作区审计；问题当场修复，或登记为明确债务。
+5. 定期巡检状态与知识原料，避免文档、现实和经验慢慢分叉。
+
+## 适合哪些场景
+
+- **软件研发**：管理原型、应用、在线服务、架构决定和故障经验。
+- **科研与数据工作**：区分假设、试验、真实结果、失败方法和已验证结论。
+- **内容生产**：串起选题、草稿、栏目、素材来源、发布流程与风格复盘。
+- **个人运营**：维护长期目标、临时调查、提醒任务、订阅资产和决策经验。
+- **多人或多 Agent 协作**：让不同参与者面对同一套状态、证据与权限边界。
+
+领域可以不同，流程不必推倒重来。你只需要调整工作区名称、状态和领域规则，核心的生命周期与验证方式可以继续复用。
+
+## 信息最终去了哪里
+
+你不需要每天关心目录，但需要知道四类信息不会混在一起：
+
+- **规则**说明什么可以做、什么必须确认。
+- **当前事实**说明现在有哪些工作、由谁负责、处于什么状态。
+- **证据**记录实际试过什么，包括失败、输出和关键决定。
+- **知识**只保留经过验证、写明边界、以后还能复用的结论。
+
+因此，聊天不是事实，测试日志也不会自动变成知识；每一次有价值的转化都保留来源。
+
+更完整的信息流说明见 [Information Flow](docs/INFORMATION-FLOW.md)，设计理由见 [Governance Design](docs/GOVERNANCE.md)。
+
+## 安全与隐私
+
+- 本地 AI 证据、运行报告、原生会话、日志、数据库和凭据默认不进入公开仓库。
+- 项目不包含遥测，也不会主动上传工作区内容。
+- 看不见外部环境时只报告“未知”，不会把无法确认误写成成功或失败。
+- 自动巡检默认只观察和生成可重建报告，不会自行删除、迁移、部署或修改外部系统。
+- 公开证据需要先脱敏和人工审阅，不能直接上传完整会话或本地账本。
+
+## 给维护者的技术入口
+
+日常用户不需要记住下面这些命令。需要本地检查、接入 CI 或参与贡献时再展开。
+
+<details>
+<summary>运行测试、审计与发布检查</summary>
+
+环境要求：Python 3.11–3.14、Git 2.x 与 POSIX shell。Linux 和 macOS 已进入 CI，Windows 暂未支持。运行代码只依赖 Python 标准库。
 
 ```bash
 python3 -m unittest discover -s tests -v
@@ -88,26 +188,32 @@ python3 scripts/workspace_audit.py --run-adapters
 python3 scripts/release_check.py
 ```
 
-发布检查会验证版本、变更记录、许可证、社区文件、公开文本中的宿主私有标识，以及本地 ledger 的忽略边界。CI 在 Linux/macOS 和 Python 3.11–3.14 上复核这些契约。版本历史见 [`CHANGELOG.md`](CHANGELOG.md)，支持范围见 [`SUPPORT.md`](SUPPORT.md)，发布路线见 [`ROADMAP.md`](ROADMAP.md)，实际打版本前按 [`docs/PUBLIC-RELEASE.md`](docs/PUBLIC-RELEASE.md) 执行。
+需要实际执行工作项验证器时，再显式加入 `--run-verifiers`。周期维护入口是：
 
-## 目录模型
+```bash
+python3 scripts/workspace_maintenance.py --run-adapters
+```
 
-| 目录 | 责任 |
-|---|---|
-| `workbench/` | 探索、试验、尚未承诺长期维护的工作 |
-| `projects/` | 有明确交付物、负责人和状态的长期项目 |
-| `services/` | 持续运行、需要健康检查和运维责任的系统 |
-| `tools/` | 被多个工作项复用的确定性工具 |
-| `assets/` | 资产存在性、连接方式和凭据位置；不保存凭据值 |
-| `knowledge/raw/` | 未策展观察、失败、线索；有 7 天出口压力 |
-| `knowledge/curated/` | 已验证、含边界和证据指针的可复用知识 |
-| `governance/` | 机器可读的目录、债务、自动化与知识目录 |
-| `docs/` | 状态、治理解释、runbook 与人工决策文档 |
-| `.ai/` | 原生会话指针、实验、运行、决策和证据链 |
-| `archive/` | 已退役对象及其墓碑说明 |
+维护器只刷新 `.workspace/runtime/audit-latest.json`，不会修改权威状态。Git、AI 证据账本与提交闸门的本地激活流程见 [Local Activation](docs/ACTIVATION.md)。
 
-详细规则见 [`AGENTS.md`](AGENTS.md)，设计取舍见 [`docs/GOVERNANCE.md`](docs/GOVERNANCE.md)，完整信息流见 [`docs/INFORMATION-FLOW.md`](docs/INFORMATION-FLOW.md)，机器字段与迁移策略见 [`docs/SCHEMAS.md`](docs/SCHEMAS.md)，本地激活见 [`docs/ACTIVATION.md`](docs/ACTIVATION.md)。匿名化的来源提炼和真实脏工作区接管经验分别见 [`docs/MATURITY-EXTRACTION.md`](docs/MATURITY-EXTRACTION.md) 与 [`docs/LIVE-ADOPTION-CASE.md`](docs/LIVE-ADOPTION-CASE.md)；它们不会复制到新目标。
+</details>
 
-## 社区与许可证
+<details>
+<summary>深入了解工作区契约</summary>
 
-参与方式见 [`CONTRIBUTING.md`](CONTRIBUTING.md)，行为准则见 [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)，安全报告见 [`SECURITY.md`](SECURITY.md)，项目决策方式见 [`GOVERNANCE.md`](GOVERNANCE.md)。本项目采用 [Apache License 2.0](LICENSE)。
+- [AGENTS.md](AGENTS.md)：人和 AI 共同遵守的工作契约
+- [Workspace schema](docs/SCHEMAS.md)：机器可读字段与迁移策略
+- [Bootstrap Skill](.agents/skills/bootstrap-ai-workspace/SKILL.md)：检查、计划、应用、验证与回滚
+- [Live adoption case](docs/LIVE-ADOPTION-CASE.md)：接管真实脏工作区的匿名化案例
+- [Public release runbook](docs/PUBLIC-RELEASE.md)：公开发布与脱敏边界
+- [Roadmap](ROADMAP.md)：当前阶段与后续计划
+
+</details>
+
+## 项目状态与参与
+
+这是一个 GitHub Template Repository，不是 pip 包，也不绑定某个模型、Agent 或云服务。当前预发布版本已经覆盖工作区接管、本地激活、审计、证据账本、知识流、自动维护边界和公开发布检查。
+
+欢迎通过 [CONTRIBUTING.md](CONTRIBUTING.md) 参与改进；安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。版本变化见 [CHANGELOG.md](CHANGELOG.md)，支持范围见 [SUPPORT.md](SUPPORT.md)。
+
+本项目采用 [Apache License 2.0](LICENSE)。
