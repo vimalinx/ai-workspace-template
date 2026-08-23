@@ -17,6 +17,13 @@ class ReleaseCheckTests(unittest.TestCase):
     def test_repository_release_surface_passes(self) -> None:
         self.assertEqual([], check_release(ROOT))
 
+    def test_repository_exposes_self_contained_agent_start_handoff(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("复制这一段给 Agent", readme)
+        self.assertIn(".agents/skills/bootstrap-ai-workspace/SKILL.md", readme)
+        self.assertIn("activation plan/review/receipt", readme)
+        self.assertIn("不提交或推送", readme)
+
     def test_missing_license_private_reference_and_ledger_boundary_fail(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

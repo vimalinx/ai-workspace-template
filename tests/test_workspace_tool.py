@@ -65,8 +65,18 @@ class WorkspaceToolTests(unittest.TestCase):
         self.assertTrue((target / "scripts/workspace_activate.py").is_file())
         self.assertFalse((target / "docs/LIVE-ADOPTION-CASE.md").exists())
         self.assertFalse((target / "docs/MATURITY-EXTRACTION.md").exists())
+        generated_readme = (target / "README.md").read_text(encoding="utf-8")
+        self.assertIn(".agents/skills/bootstrap-ai-workspace/SKILL.md", generated_readme)
+        self.assertIn("不要重复接管", generated_readme)
         self.assertEqual(0o600, receipt.stat().st_mode & 0o777)
         self.assertEqual(0, self.run_tool("verify", target, "--skip-git-hook").returncode)
+
+        inspection = json.loads(self.run_tool("inspect", target, "--json", check=True).stdout)
+        self.assertEqual("governed", inspection["entry_state"])
+        self.assertEqual("configure-and-activate", inspection["recommended_action"])
+        duplicate = self.run_tool("plan", target, "--template-root", TEMPLATE)
+        self.assertEqual(2, duplicate.returncode)
+        self.assertIn("do not re-adopt", duplicate.stderr)
 
         rollback = self.run_tool("rollback", receipt, check=True)
         self.assertIn("ROLLBACK-", rollback.stdout)
@@ -103,7 +113,10 @@ class WorkspaceToolTests(unittest.TestCase):
         first_plan = self.plan(target, "--mode", "adopt", "--protect", "local-only")
         self.apply(first_plan)
         self.assertTrue((target / "AGENTS.md").read_text().startswith(original_agents))
-        self.assertTrue((target / "README.md").read_text().startswith(original_readme))
+        adopted_readme = (target / "README.md").read_text()
+        self.assertTrue(adopted_readme.startswith(original_readme))
+        self.assertIn(".agents/skills/bootstrap-ai-workspace/SKILL.md", adopted_readme)
+        self.assertIn("不要重复接管", adopted_readme)
         self.assertTrue((target / ".gitignore").read_text().startswith(original_ignore))
         self.assertEqual("keep me\n", (target / "domain.txt").read_text())
         self.assertEqual(0o700, (target / ".workspace/backups").stat().st_mode & 0o777)
@@ -113,6 +126,22 @@ class WorkspaceToolTests(unittest.TestCase):
         self.assertEqual(1, (target / "AGENTS.md").read_text().count("<!-- AI-WORKSPACE:BEGIN -->"))
         self.assertEqual(1, (target / "README.md").read_text().count("<!-- AI-WORKSPACE:BEGIN -->"))
         self.assertEqual(1, (target / ".gitignore").read_text().count("# AI-WORKSPACE:BEGIN"))
+
+    def test_adopt_without_agents_creates_valid_normative_header(self) -> None:
+        target = self.base / "existing-without-agents"
+        target.mkdir()
+        (target / "README.md").write_text("# Existing workspace\n\nKeep this content.\n", encoding="utf-8")
+        (target / "business.txt").write_text("preserve me\n", encoding="utf-8")
+
+        plan = self.plan(target, "--mode", "adopt", "--name", "Existing Workspace")
+        self.apply(plan)
+
+        agents = (target / "AGENTS.md").read_text(encoding="utf-8")
+        first_nonempty = next(line for line in agents.splitlines() if line.strip())
+        self.assertTrue(first_nonempty.startswith("# "))
+        self.assertIn("<!-- AI-WORKSPACE:BEGIN -->", agents)
+        self.assertEqual("preserve me\n", (target / "business.txt").read_text(encoding="utf-8"))
+        self.assertEqual(0, self.run_tool("verify", target, "--skip-git-hook").returncode)
 
     def test_inspect_reports_dirty_repository_without_mutating_it(self) -> None:
         target = self.base / "dirty"

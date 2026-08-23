@@ -4,9 +4,17 @@ All notable changes are documented here. This project follows semantic versionin
 
 ## [Unreleased]
 
+### Added
+
+- Add a self-contained natural-language handoff that lets any coding Agent with local file and terminal access detect a template copy, empty target, or existing folder and complete safe additive initialization plus separately receipted local activation.
+
 ### Changed
 
 - Rewrite the public README around human-AI workflows and practical use cases, with native Mermaid diagrams covering the evidence loop, complete work-item routing and state transitions, approval boundaries, and adoption/activation/rollback; move technical details behind progressive disclosure.
+
+### Fixed
+
+- Make additive adoption of an existing folder without `AGENTS.md` generate a valid top-level normative heading instead of failing final verification with `NORMATIVE_HEADER`.
 
 ## [0.1.0-alpha.2] - 2026-08-22
 

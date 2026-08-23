@@ -1,6 +1,6 @@
 ---
 name: bootstrap-ai-workspace
-description: Initialize a new governed AI workspace or safely adopt and organize an existing workspace using a reviewable plan, additive scaffolding, backups, apply receipts, verification, and drift-aware rollback. Use when asked to create a human-and-AI workspace, bring order to an existing repository or folder, extract a reusable governance model from a mature workspace, add AI auto-maintenance, reconcile workspace structure, or reorganize a live or dirty worktree without losing current conventions. Also trigger for near-miss requests such as “clean up this repo,” “make this folder maintain itself,” “turn this into the same kind of workspace as another project,” or “standardize this workspace for agents.”
+description: Initialize or finish configuring a governed AI workspace, or safely adopt and organize an existing folder, using target detection, reviewable plans, additive scaffolding, backups, apply receipts, verification, and drift-aware rollback. Use when asked to create a human-and-AI workspace, start from this template, bring order to an existing repository or folder, add AI auto-maintenance, reconcile workspace structure, or standardize a workspace for agents. Also trigger for near-miss requests such as “initialize this for my agent,” “clean up this repo,” “make this folder maintain itself,” or “turn this into the same kind of workspace as another project.”
 ---
 
 # Bootstrap AI Workspace
@@ -15,12 +15,29 @@ Read these references before planning:
 - `references/maturity-patterns.md` for the domain-neutral governance model extracted from a mature workspace.
 - `references/live-adoption-case.md` when adopting a dirty, live, production-like workspace.
 
-Use `scripts/workspace_tool.py` for inspection and mutations. Do not reimplement its guarded operations with ad hoc shell commands.
+Use `scripts/workspace_tool.py` for inspection and adoption mutations. Do not reimplement its guarded placement, move, backup, receipt, or rollback operations with ad hoc shell commands. Ordinary configuration edits inside a control plane that is already installed are not adoption; follow that target's `AGENTS.md`, edit only the values authorized by the user, and verify them normally.
+
+## Resolve the target and entry state
+
+Treat a pasted natural-language request as a complete handoff when it identifies the target or clearly says to use the current directory. Do not require a product-specific slash command. The Agent must be able to read local files and run terminal commands; otherwise explain that limitation instead of pretending initialization occurred.
+
+Resolve the target before writing:
+
+- If the user names another absolute target, operate on that target and do not personalize or activate the template source repository.
+- If no target is named, use the current workspace root.
+- If the target already contains `workspace.toml`, `scripts/workspace_audit.py`, and this Skill, the governance control plane is already installed. Do not run adoption against it merely to duplicate files. Inspect it, update only explicitly authorized or safely inferable configuration such as the workspace name, then check activation status and verify.
+- If the target is missing or empty, use **new**.
+- If the target is non-empty and does not already have the current control plane, use **adopt**.
+
+When the initial request explicitly authorizes additive initialization and local activation, an accountable Agent may carry the low-risk path through inspect, plan, review, apply, verify, and a separately receipted activation without asking the user to repeat “continue.” It must still stop when the plan contains moves, deletions, overwrites of business content, unresolved business meaning, credentials, deployment, external scheduler changes, commits, pushes, or other authority not granted by that request.
+
+Before applying, give a short plain-language preview of the selected mode, what will be preserved, what will be added, and any unknowns. Do not make the user interpret raw JSON unless they ask; the exact JSON plan and hash-bound review receipt remain the machine evidence.
 
 ## Choose the mode
 
 - Use **new** for a missing or empty target. Create the generic skeleton and then adapt its name, layers, catalog, and domain checks.
 - Use **adopt** for any non-empty target. Preserve all existing business files and instructions; add the governance control plane around them.
+- Use the **already governed** path for a fresh template copy or previously initialized target. Do not create another adoption plan; personalize only in scope, then continue with activation status and verification.
 - Use **reorganize** only as an adopt phase followed by separately reviewed moves. Never bundle inferred moves into the initial adoption.
 - When Git is dirty or the target is actively operated, default to additive adoption with no moves, deletes, commits, permission changes, deployments, or external scheduler changes.
 
@@ -36,6 +53,7 @@ python3 .agents/skills/bootstrap-ai-workspace/scripts/workspace_tool.py inspect 
 
 If the Skill is not installed in the target yet, run the copy in this Skill directory. Review:
 
+- `entry_state` and `recommended_action`; `governed / configure-and-activate` means the control plane is already installed and must not be auto-adopted again;
 - Git state and existing instructions;
 - root entries and domain-native layers;
 - nested repositories and large runtime areas;

@@ -2,7 +2,7 @@
 
 本工作区把 AI 当作受治理的维护者：AI 可以观察、实现、验证、登记和生成派生报告，但不能把推测直接写成事实，也不能用“自动维护”掩盖删除、迁移、知识晋升或外部系统变更。
 
-初始化新工作区、接管现有工作区或整理目录时，先使用 `.agents/skills/bootstrap-ai-workspace/SKILL.md` 的 inspect → plan → apply → verify → rollback 契约。现有脏工作区默认只允许增量接管；“整理”不隐含删除、迁移、提交、权限、部署或外部调度授权。
+初始化新工作区、接管现有工作区或整理目录时，先使用 `.agents/skills/bootstrap-ai-workspace/SKILL.md` 的 inspect → plan → apply → verify → rollback 契约。如果当前目录已经同时具备 `workspace.toml`、治理脚本和该 Skill，它就是已安装治理层的模板副本或现有工作区：不要重复接管，只做任务内个性化、独立激活与验证。现有脏工作区默认只允许增量接管；“整理”不隐含删除、迁移、提交、权限、部署或外部调度授权。
 
 ## 意图路由
 

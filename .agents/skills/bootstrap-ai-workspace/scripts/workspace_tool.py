@@ -338,10 +338,24 @@ def inspect_workspace(root: Path) -> dict[str, Any]:
             warnings.append({"code": "SCRIPT_SPRAWL", "message": f"scripts/ has {script_count} direct files; add an index before moving or deleting anything."})
 
     mode = "new" if not exists or not entries else "adopt"
+    governance = {
+        "workspace_toml": (root / "workspace.toml").is_file() if exists else False,
+        "catalog": (root / "governance/catalog.toml").is_file() if exists else False,
+        "audit": (root / "scripts/workspace_audit.py").is_file() if exists else False,
+        "skill": (root / ".agents/skills/bootstrap-ai-workspace/SKILL.md").is_file() if exists else False,
+    }
+    entry_state = "governed" if all(governance.values()) else mode
+    recommended_action = {
+        "governed": "configure-and-activate",
+        "new": "plan-new",
+        "adopt": "plan-adopt",
+    }[entry_state]
     return {
         "schema_version": 1,
         "target": str(root),
         "exists": exists,
+        "entry_state": entry_state,
+        "recommended_action": recommended_action,
         "recommended_mode": mode,
         "fingerprint": root_fingerprint(root),
         "git": git,
@@ -350,12 +364,7 @@ def inspect_workspace(root: Path) -> dict[str, Any]:
         "sensitive_files": sensitive,
         "nested_repositories": sorted(nested_repos),
         "script_count": script_count,
-        "governance": {
-            "workspace_toml": (root / "workspace.toml").is_file() if exists else False,
-            "catalog": (root / "governance/catalog.toml").is_file() if exists else False,
-            "audit": (root / "scripts/workspace_audit.py").is_file() if exists else False,
-            "skill": (root / ".agents/skills/bootstrap-ai-workspace/SKILL.md").is_file() if exists else False,
-        },
+        "governance": governance,
         "warnings": warnings,
     }
 
@@ -425,29 +434,43 @@ def render_workspace_toml(
     return "\n".join(chunks) + "\n"
 
 
+def render_agent_start_prompt(target_phrase: str = "当前目录") -> str:
+    return f"""请把{target_phrase}初始化为可以长期由 Agent 维护的 AI 工作区。先完整读取目标中的 `AGENTS.md`（如存在），以及目标或当前模板仓库里的 `.agents/skills/bootstrap-ai-workspace/SKILL.md` 和其中要求的引用文件，再开始操作。如果该 Skill 不可访问，请停止并告诉我需要先打开或下载模板仓库，不要自行猜测替代流程。
+
+请先根据真实文件判断入口：已经具备 `workspace.toml`、治理脚本和该 Skill 的模板副本，不要重复接管，只检查需要个性化的配置和本地激活状态；空目录使用 new；有业务文件但尚未治理的目录使用 adopt，并完整保留原有内容。
+
+我授权你在“不删除、不移动、不覆盖原有业务文件，不操作凭据，不部署，不修改外部调度器，不提交或推送”的边界内，连续完成 inspect → plan → review → apply → verify；文件层验证通过后，再用独立的 activation plan/review/receipt 激活缺失的 Git、`.ai` 证据账本和 pre-commit hook。纯增量且没有需要我决定的风险时可以直接完成；只有遇到业务含义不明、目标漂移、验证失败无法安全修复，或需要超出上述边界时才停下来问我。
+
+结束时请用普通人能看懂的语言说明：创建或修改了什么、保留了什么、真实验证结果、仍然未知的外部状态、回滚回执，以及“治理检查：同步 X；债务 Y”。"""
+
+
 def render_new_workspace_readme(name: str) -> str:
     return f"""# {name}
 
-This workspace uses the governed AI Workspace model. It keeps work identity, debt, automation declarations, evidence, and curated knowledge in separate authoritative surfaces so humans and agents can maintain it without turning guesses into facts.
+这是一个由人和 Agent 共同维护的受治理工作区。规则、当前事实、真实证据和可复用知识分别保存，避免把聊天记忆或模型推测直接当成项目事实。
 
-## Start here
+## 一段话交给 Agent
 
-1. Read `AGENTS.md` and `workspace.toml`.
-2. Put uncertain or exploratory work in `workbench/`; graduate durable work to `projects/` or `services/`.
-3. Register each direct work item in `governance/catalog.toml` and give it a `README.md`.
-4. Initialize local Git, the private evidence ledger, and the hook through the reviewed flow in `docs/ACTIVATION.md`.
-5. Verify the workspace:
+适用于能够读取本地文件并执行终端命令的编码 Agent；不依赖某个产品的斜杠命令。复制整段即可启动首次配置：
 
-   ```bash
-   python3 -m unittest discover -s tests -v
-   python3 scripts/workspace_audit.py --run-adapters
-   ```
+```text
+{render_agent_start_prompt()}
+```
 
-## Boundaries
+如果 Agent 判断当前目录已经具备完整治理层，它必须跳过重复接管，只完成必要的个性化、激活和验证。
 
-- `.ai/` and `.workspace/` are local operational surfaces, not public source or curated knowledge.
-- Maintenance reports are derived state; they do not authorize deletion, migration, deployment, knowledge promotion, or external scheduler changes.
-- Machine schemas are documented in `docs/SCHEMAS.md`; information flow is documented in `docs/INFORMATION-FLOW.md`.
+## 日常工作方式
+
+1. 不确定或一次性工作先进入 `workbench/`；长期交付、常驻服务和复用执行器分别进入 `projects/`、`services/` 和 `tools/`。
+2. 每个直接工作项在 `governance/catalog.toml` 登记，并有自己的 `README.md`、负责人和验证入口。
+3. 真实测试、失败和关键决定进入本地 `.ai/`；未经验证但值得保留的观察进入 `knowledge/raw/`。
+4. 实质性工作结束前运行 `python3 scripts/workspace_audit.py --run-adapters`。
+
+## 边界
+
+- `.ai/` 和 `.workspace/` 是本地操作面，不是公开源码或策展知识。
+- 维护报告是可重建状态，不授权删除、迁移、部署、知识晋升或外部调度变更。
+- Git、证据账本和 hook 的首次激活见 `docs/ACTIVATION.md`；机器字段见 `docs/SCHEMAS.md`，信息流见 `docs/INFORMATION-FLOW.md`。
 """
 
 
@@ -631,6 +654,11 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
     if not (template / "workspace.toml").is_file():
         raise WorkspaceError(f"template root is missing workspace.toml: {template}")
     inspection = inspect_workspace(target)
+    if args.mode == "auto" and inspection.get("entry_state") == "governed":
+        raise WorkspaceError(
+            "target already has the governed control plane; do not re-adopt it automatically. "
+            "Configure only authorized values, then use workspace_activate.py status and verify."
+        )
     mode = inspection["recommended_mode"] if args.mode == "auto" else args.mode
     if mode == "new" and target.exists() and any(target.iterdir()):
         raise WorkspaceError("new mode requires a missing or empty target; use adopt mode")
@@ -717,16 +745,17 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
 - 实质性工作结束前运行 `python3 scripts/workspace_audit.py --skip-git-hook`。WARN 当轮修复或精确认领到 `governance/debts.toml`。
 - 真实测试与重要决定保存在 `.ai/`；原生聊天正文留在原运行时；未经验证的观察进入 `knowledge/raw/`。
 - 自动维护只允许刷新派生报告；移动、删除、关闭债务、知识晋升和外部调度变更需要明确授权与验证。"""
-        readme_body = """## Workspace governance
+        readme_body = f"""## AI 工作区治理
 
-This existing workspace has adopted the governed workspace layer without replacing its domain layout.
+这个已有工作区已经增量接入治理层，原有业务布局仍然保留。规则在 `workspace.toml`，当前工作、债务和自动化事实在 `governance/`，真实证据在 `.ai/`，知识原料与策展结论在 `knowledge/`。
 
-- Policy: `workspace.toml`
-- Catalog, debt, and automation truth: `governance/`
-- Evidence: `.ai/`
-- Raw and curated knowledge: `knowledge/`
-- Read-only reconciliation: `python3 scripts/workspace_audit.py --skip-git-hook`
-- Human/AI initializer: `.agents/skills/bootstrap-ai-workspace/`"""
+### 一段话交给 Agent
+
+```text
+{render_agent_start_prompt()}
+```
+
+当前目录已经完成文件接管，Agent 不应重复添加治理层；它应先检查实际状态，只补个性化配置和缺失的本地激活能力。只读对账入口是 `python3 scripts/workspace_audit.py --skip-git-hook`。"""
         protect_lines = [
             ".ai/",
             ".workspace/backups/",
@@ -744,15 +773,20 @@ This existing workspace has adopted the governed workspace layer without replaci
             (".gitignore", "# AI-WORKSPACE:BEGIN", "# AI-WORKSPACE:END", ignore_body),
         ):
             path = target / rel
-            before = path.read_text(encoding="utf-8") if path.is_file() else ""
-            after = managed_block(before, begin, end, body)
-            if after != before:
+            original_before = path.read_text(encoding="utf-8") if path.is_file() else ""
+            managed_before = original_before
+            if not managed_before and rel == "AGENTS.md":
+                managed_before = f"# {name} — Agent Instructions\n"
+            elif not managed_before and rel == "README.md":
+                managed_before = f"# {name}\n"
+            after = managed_block(managed_before, begin, end, body)
+            if after != original_before:
                 operations.append(
                     {
                         "op": "managed_block",
                         "dest": rel,
                         "content": after,
-                        "expected_before_sha256": sha256_bytes(before.encode()) if path.exists() else None,
+                        "expected_before_sha256": sha256_bytes(original_before.encode()) if path.exists() else None,
                         "mode": stat.S_IMODE(path.stat().st_mode) if path.exists() else 0o644,
                     }
                 )
@@ -1183,6 +1217,8 @@ def verify_workspace(root: Path, skip_git_hook: bool, run_adapters: bool = False
 def render_inspection(data: dict[str, Any]) -> str:
     lines = [
         f"Target: {data['target']}",
+        f"Entry state: {data['entry_state']}",
+        f"Recommended action: {data['recommended_action']}",
         f"Mode: {data['recommended_mode']}",
         f"Git: {'dirty' if data['git'].get('dirty') else 'clean' if data['git'].get('is_repo') else 'not initialized'}",
         f"Top-level entries: {len(data['top_level'])}",
