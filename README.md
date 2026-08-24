@@ -1,6 +1,35 @@
 # AI Workspace Template
 
-让 AI 不只会“帮你做一次”，还知道怎样和你一起把事情长期维护好。
+<p align="center">
+  <strong>让 Agent 不只完成一次任务，而是持续维护一个可信、可验证、可回滚的工作区。</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/vimalinx/ai-workspace-template/actions/workflows/workspace-governance.yml"><img alt="Workspace governance" src="https://github.com/vimalinx/ai-workspace-template/actions/workflows/workspace-governance.yml/badge.svg"></a>
+  <a href="https://github.com/vimalinx/ai-workspace-template/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/vimalinx/ai-workspace-template?include_prereleases&sort=semver"></a>
+  <a href="LICENSE"><img alt="Apache License 2.0" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"></a>
+  <img alt="Python 3.11–3.14" src="https://img.shields.io/badge/python-3.11%E2%80%933.14-3776AB.svg">
+</p>
+
+<p align="center">
+  <a href="#一句话开始">一句话开始</a> ·
+  <a href="#它会怎样改变你的工作方式">工作方式</a> ·
+  <a href="#开始使用">完整指引</a> ·
+  <a href="#安全与隐私">安全边界</a>
+</p>
+
+## 一句话开始
+
+> [!IMPORTANT]
+> 把下面整句话复制给能读取本地文件、修改文件并执行终端命令的 Agent；把【目标目录】替换成实际路径，或者保留“默认当前目录”。
+
+```text
+请把【目标目录，默认当前目录】初始化或接管为可以长期由 Agent 维护的 AI 工作区：先完整读取目标中的 AGENTS.md（如存在）以及目标或当前模板仓库里的 .agents/skills/bootstrap-ai-workspace/SKILL.md 和它要求的引用文件，判断这是已有模板、空目录还是需要增量接管的现有目录；在不删除、不移动、不覆盖原有业务文件、不操作凭据、不部署、不修改外部调度器、不提交或推送的边界内，连续完成检查、计划、审阅、应用、验证和带回执的本地激活，只有遇到真实风险或必须由我决定的业务问题时才停下来询问，并在结束时报告变更、保留内容、验证结果、未知状态、回滚方式和治理债务。
+```
+
+**使用方式：** 点击 GitHub 的 **Use this template**，让 Agent 打开生成的仓库并粘贴上面这句话；接管已有目录时，则在本模板仓库中打开 Agent，并把目标的绝对路径填进去。它不依赖特定模型、斜杠命令或聊天产品。
+
+---
 
 这是一个面向真实工作的 AI 工作区模板。它适合软件项目、研究、内容生产、个人运营，以及任何会不断积累文件、决定、经验和自动化的长期事务。
 
@@ -101,7 +130,18 @@ flowchart TD
 
 ## 开始使用
 
-最简单的方式，是点击 GitHub 的 **Use this template** 创建自己的仓库，然后把下面整段话交给编码 Agent。它不依赖某个产品的斜杠命令：只要 Agent 能读取本地文件、修改文件并执行终端命令，就能按仓库里的同一份 Skill 工作；只能聊天、不能操作文件的 AI 无法完成初始化。
+页面最前面的单句指令已经足够启动标准流程。Agent 会先判断目标属于哪种情况，再选择对应入口：
+
+| 目标现状 | Agent 的入口 | 默认行为 |
+|---|---|---|
+| 已经是本模板的副本 | 配置并激活 | 不重复接管，只补个性化配置和缺失的本地能力 |
+| 空目录 | 新建工作区 | 创建完整骨架，再验证和激活 |
+| 已有业务文件、尚未治理 | 增量接管 | 保留原有内容，只添加经过审阅的治理结构 |
+
+如果希望把授权边界写得更明确，可以使用下面的完整版本。它和顶部单句遵守同一份契约，只是把各阶段展开说明。
+
+<details>
+<summary><strong>展开完整 Agent 初始化指令</strong></summary>
 
 ### 复制这一段给 Agent
 
@@ -116,6 +156,8 @@ flowchart TD
 
 结束时请用普通人能看懂的语言说明：创建或修改了什么、保留了什么、真实验证结果、仍然未知的外部状态、回滚回执，以及“治理检查：同步 X；债务 Y”。
 ```
+
+</details>
 
 这是一段话启动，不是取消安全边界。它一次性授权纯增量初始化和本地激活，因此 Agent 不需要每一步都让你回复“继续”；移动、删除、覆盖、部署、凭据、外部调度器、提交和推送仍然必须另行确认。
 

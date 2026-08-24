@@ -10,7 +10,7 @@ All notable changes are documented here. This project follows semantic versionin
 
 ### Changed
 
-- Rewrite the public README around human-AI workflows and practical use cases, with native Mermaid diagrams covering the evidence loop, complete work-item routing and state transitions, approval boundaries, and adoption/activation/rollback; move technical details behind progressive disclosure.
+- Rewrite the public README around human-AI workflows and practical use cases, front-load a product-independent one-sentence Agent instruction and formal project entry, and use native Mermaid diagrams for the evidence loop, complete work-item routing and state transitions, approval boundaries, and adoption/activation/rollback.
 
 ### Fixed
 

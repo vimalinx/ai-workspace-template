@@ -19,6 +19,11 @@ class ReleaseCheckTests(unittest.TestCase):
 
     def test_repository_exposes_self_contained_agent_start_handoff(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        one_line_start = readme.index("## 一句话开始")
+        workflow_intro = readme.index("## 它会怎样改变你的工作方式")
+        self.assertLess(one_line_start, workflow_intro)
+        self.assertIn("Use this template", readme[:workflow_intro])
+        self.assertIn("不依赖特定模型", readme[:workflow_intro])
         self.assertIn("复制这一段给 Agent", readme)
         self.assertIn(".agents/skills/bootstrap-ai-workspace/SKILL.md", readme)
         self.assertIn("activation plan/review/receipt", readme)
