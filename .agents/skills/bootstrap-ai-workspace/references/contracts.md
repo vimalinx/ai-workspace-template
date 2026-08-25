@@ -77,8 +77,13 @@ python3 /absolute/skill/scripts/workspace_tool.py plan /absolute/workspace \
   --scan-skip existing-agent-mirror \
   --protect .env \
   --protect data \
+  --preserve tests \
   --output /absolute/workspace/.workspace/plans/adopt.json
 ```
+
+`--protect` keeps local material outside governance and adds it to the managed ignore block.
+`--preserve` keeps an existing path governed and versionable while preventing the template from
+adding or rewriting files beneath it.
 
 Review, apply, verify, and roll back:
 

@@ -688,13 +688,22 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
     seed = f"{target}|{utc_now()}|{inspection['fingerprint']}"
     plan_id = "PLAN-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + hashlib.sha256(seed.encode()).hexdigest()[:8]
     operations: list[dict[str, Any]] = []
+    protected_paths = {safe_rel(item).rstrip("/") for item in args.protect}
+    preserved_paths = {safe_rel(item).rstrip("/") for item in args.preserve}
+
+    def is_preserved(dest_rel: str) -> bool:
+        normalized = safe_rel(dest_rel)
+        immutable_paths = protected_paths | preserved_paths
+        return any(normalized == path or normalized.startswith(path + "/") for path in immutable_paths)
 
     for rel in DEFAULT_DIRS:
-        if not (target / rel).exists():
+        if not is_preserved(rel) and not (target / rel).exists():
             operations.append({"op": "mkdir", "dest": rel})
 
     def add_copy(source: Path, dest_rel: str) -> None:
         dest_rel = safe_rel(dest_rel)
+        if is_preserved(dest_rel):
+            return
         if (target / dest_rel).exists():
             return
         if not source.is_file():
@@ -728,7 +737,7 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
         ".github/workflows/workspace-governance.yml": render_workspace_ci(),
     }
     for rel, content in dynamic_files.items():
-        if not (target / rel).exists():
+        if not is_preserved(rel) and not (target / rel).exists():
             operations.append({"op": "write_file", "dest": rel, "content": content, "mode": 0o644})
 
     if mode == "new":
@@ -772,6 +781,8 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
             ("README.md", "<!-- AI-WORKSPACE:BEGIN -->", "<!-- AI-WORKSPACE:END -->", readme_body),
             (".gitignore", "# AI-WORKSPACE:BEGIN", "# AI-WORKSPACE:END", ignore_body),
         ):
+            if is_preserved(rel):
+                continue
             path = target / rel
             original_before = path.read_text(encoding="utf-8") if path.is_file() else ""
             managed_before = original_before
@@ -951,6 +962,7 @@ def build_plan(args: argparse.Namespace) -> dict[str, Any]:
         "catalog_layers": catalog_layers,
         "scan_skip_paths": sorted(set(args.scan_skip)),
         "protected_paths": sorted(set(args.protect)),
+        "preserved_paths": sorted(set(args.preserve)),
         "reference_exemptions": sorted(reference_exemptions),
         "operations": operations,
         "requires_allow_moves": bool(moves),
@@ -1245,6 +1257,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     plan_parser.add_argument("--catalog-layer", action="append", default=[])
     plan_parser.add_argument("--scan-skip", action="append", default=[])
     plan_parser.add_argument("--protect", action="append", default=[])
+    plan_parser.add_argument("--preserve", action="append", default=[])
     plan_parser.add_argument("--replace-from", action="append", default=[], metavar="SOURCE=DEST")
     plan_parser.add_argument("--rewrite", action="append", default=[], metavar="PATH::OLD::NEW")
     plan_parser.add_argument("--reference-exempt", action="append", default=[], metavar="PATH")
