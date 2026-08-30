@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vimalinx/ai-workspace-template/governance/schemas/experiment.schema.json",
+  "title": "Autonomous Workspace Experiment",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "object_type": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "item": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hypothesis_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verifiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "base_sha": {
+      "type": "string"
+    },
+    "head_sha": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evaluation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "object_type",
+    "id",
+    "item",
+    "status",
+    "created_at",
+    "updated_at",
+    "objective",
+    "method"
+  ]
+}

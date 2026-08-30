@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vimalinx/ai-workspace-template/governance/schemas/assignment.schema.json",
+  "title": "Autonomous Workspace Assignment",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "object_type": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "item": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "integrator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "read_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "write_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "forbidden_scope": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "may_delegate": {
+      "type": "boolean"
+    },
+    "base_sha": {
+      "type": "string"
+    },
+    "budget_tokens": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "budget_minutes": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "schema_version",
+    "object_type",
+    "id",
+    "item",
+    "status",
+    "created_at",
+    "updated_at",
+    "role",
+    "objective",
+    "integrator"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vimalinx/ai-workspace-template/governance/schemas/search-node.schema.json",
+  "title": "Autonomous Workspace Search-Node",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "object_type": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "item": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "agenda_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hypothesis_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "revisit_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "object_type",
+    "id",
+    "item",
+    "status",
+    "created_at",
+    "updated_at",
+    "question"
+  ]
+}

@@ -1,0 +1,16 @@
+schema_version = 1
+
+# 审计 WARN 必须按 (check, subject) 精确认领。kind 为 "debt" 时必须有 YYYY-MM-DD
+# 到期日；kind 为 "exempt" 时 due 可省略，但 reason 仍必须解释边界。当前无债务；
+# 新增时直接写 [[debts]]，不要先声明空数组。
+
+# 示例：
+# [[debts]]
+# id = "DEBT-001"
+# check = "RAW_STALE"
+# subject = "knowledge/raw/2026-01-01-example.md"
+# kind = "debt"
+# owner = "name-or-team"
+# due = "2026-09-01"
+# reason = "等待外部数据后再验证。"
+# state = "open"

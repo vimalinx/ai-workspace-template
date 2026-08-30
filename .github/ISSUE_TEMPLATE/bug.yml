@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible defect without private workspace data.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not attach `.ai/`, credentials, native conversations, customer identifiers, or private paths.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: 0.1.0-alpha.2
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Linux
+        - macOS
+        - Unsupported/other
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal sanitized reproduction
+      description: Include commands, expected result, actual result, and a minimal directory shape.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized verification output
+      render: shell
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed secrets, native-session IDs, customer data, and private absolute paths.
+          required: true

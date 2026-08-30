@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vimalinx/ai-workspace-template/governance/schemas/event.schema.json",
+  "title": "Autonomous Workspace Event",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "event": {
+      "type": "string",
+      "minLength": 1
+    },
+    "item": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "object_type": {
+      "type": "string"
+    },
+    "object_id": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "schema_version",
+    "timestamp",
+    "event",
+    "item",
+    "actor"
+  ]
+}

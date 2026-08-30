@@ -1,0 +1,138 @@
+schema_version = 1
+
+[workspace]
+name = "AI Workspace"
+raw_ttl_days = 7
+max_text_scan_bytes = 1048576
+allowed_statuses = ["unknown", "idea", "active", "paused", "blocked", "maintained", "completed", "retired", "archived", "superseded"]
+allowed_top_level = [
+  ".ai",
+  ".agents",
+  ".github",
+  ".githooks",
+  ".gitignore",
+  ".workspace",
+  "AGENTS.md",
+  "CHANGELOG.md",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "GOVERNANCE.md",
+  "LICENSE",
+  "README.md",
+  "ROADMAP.md",
+  "SECURITY.md",
+  "SUPPORT.md",
+  "VERSION",
+  "archive",
+  "assets",
+  "docs",
+  "governance",
+  "knowledge",
+  "projects",
+  "scripts",
+  "services",
+  "tests",
+  "tools",
+  "workbench",
+  "workspace.toml",
+]
+ignored_top_level = [".git", ".pytest_cache", "__pycache__"]
+scan_skip_dirs = [
+  ".ai",
+  ".git",
+  ".pytest_cache",
+  ".venv",
+  ".workspace",
+  "__pycache__",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+required_paths = [
+  "AGENTS.md",
+  "CHANGELOG.md",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "GOVERNANCE.md",
+  "LICENSE",
+  "README.md",
+  "ROADMAP.md",
+  "SECURITY.md",
+  "SUPPORT.md",
+  "VERSION",
+  "governance/catalog.toml",
+  "governance/debts.toml",
+  "governance/automations.toml",
+  "governance/protocol.toml",
+  "governance/read-routes.toml",
+  "governance/agent-roles.toml",
+  "governance/schemas/mission.schema.json",
+  "governance/schemas/agenda.schema.json",
+  "governance/schemas/search-node.schema.json",
+  "governance/schemas/hypothesis.schema.json",
+  "governance/schemas/experiment.schema.json",
+  "governance/schemas/evaluation.schema.json",
+  "governance/schemas/assignment.schema.json",
+  "governance/schemas/event.schema.json",
+  "governance/adapters/catalog.toml",
+  "assets/catalog.toml",
+  ".agents/skills/bootstrap-ai-workspace/SKILL.md",
+  ".agents/skills/operate-ai-workspace/SKILL.md",
+  ".agents/skills/autonomous-exploration/SKILL.md",
+  ".agents/skills/delegate-subagents/SKILL.md",
+  ".agents/skills/checkpoint-handoff/SKILL.md",
+  "knowledge/catalog.toml",
+  "docs/SCHEMAS.md",
+  "docs/INFORMATION-FLOW.md",
+  "docs/INDEX.md",
+  "docs/PROGRESSIVE-DISCLOSURE.md",
+  "docs/OPERATING-PROTOCOL.md",
+  "docs/AUTONOMOUS-WORK.md",
+  "docs/SUBAGENTS.md",
+  "docs/INDEXES.md",
+  "docs/SELF-EVOLUTION.md",
+  "docs/GIT-AND-HANDOFF.md",
+  "docs/CLI-REFERENCE.md",
+  "docs/ACTIVATION.md",
+  "docs/PUBLIC-RELEASE.md",
+  "docs/workspace-status.md",
+  "scripts/workspace_audit.py",
+  "scripts/workspace_maintenance.py",
+  "scripts/workspace_protocol.py",
+  "scripts/precommit_gate.py",
+  "scripts/release_check.py",
+  ".githooks/pre-commit",
+  ".workspace/runtime/.gitkeep",
+  ".workspace/views/.gitkeep",
+]
+
+[[layers]]
+path = "workbench"
+purpose = "探索与试验"
+catalog_required = true
+child_readme_required = true
+
+[[layers]]
+path = "projects"
+purpose = "长期项目与稳定交付物"
+catalog_required = true
+child_readme_required = true
+
+[[layers]]
+path = "services"
+purpose = "持续运行的服务"
+catalog_required = true
+child_readme_required = true
+
+[[layers]]
+path = "tools"
+purpose = "跨项目复用工具"
+catalog_required = true
+child_readme_required = true
+
+[[layers]]
+path = "archive"
+purpose = "已退役对象"
+catalog_required = false
+child_readme_required = true

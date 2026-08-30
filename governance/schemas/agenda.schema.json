@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vimalinx/ai-workspace-template/governance/schemas/agenda.schema.json",
+  "title": "Autonomous Workspace Agenda",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "object_type": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 3
+    },
+    "item": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_value": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "information_gain": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "estimated_cost": {
+      "type": "number",
+      "minimum": 0
+    },
+    "risk": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "novelty": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blocked_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "object_type",
+    "id",
+    "item",
+    "status",
+    "created_at",
+    "updated_at",
+    "title",
+    "rationale"
+  ]
+}

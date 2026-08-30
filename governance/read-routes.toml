@@ -1,0 +1,93 @@
+
+schema_version = 1
+
+# 路由是渐进式披露的机器入口。Agent 先匹配 intent，再按顺序读取 required；
+# 只有进入具体工作项后才读取 item_required。缺失 stop_on_missing=true 的规范时必须停止，不能猜。
+
+[[routes]]
+id = "workspace-orient"
+intents = ["orient", "status", "resume", "unknown"]
+required = ["AGENTS.md", "docs/INDEX.md", "docs/PROGRESSIVE-DISCLOSURE.md", "governance/catalog.toml", "docs/workspace-status.md"]
+item_required = ["README.md", ".agent/mission.toml", ".agent/handoff.md"]
+required_for_validation = true
+stop_on_missing = false
+
+[[routes]]
+id = "bootstrap"
+intents = ["bootstrap", "initialize", "adopt", "reorganize"]
+required = ["AGENTS.md", ".agents/skills/bootstrap-ai-workspace/SKILL.md", "docs/ACTIVATION.md", "docs/SCHEMAS.md"]
+item_required = []
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "operate-work-item"
+intents = ["work", "implement", "maintain", "fix", "continue"]
+required = ["AGENTS.md", "docs/OPERATING-PROTOCOL.md", ".agents/skills/operate-ai-workspace/SKILL.md"]
+item_required = ["README.md", ".agent/mission.toml", ".agent/handoff.md"]
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "autonomous-exploration"
+intents = ["explore", "research", "autonomous-exploration", "find-work", "improve"]
+required = ["AGENTS.md", "docs/AUTONOMOUS-WORK.md", "docs/INDEXES.md", ".agents/skills/autonomous-exploration/SKILL.md"]
+item_required = ["README.md", ".agent/mission.toml", ".agent/handoff.md"]
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "run-experiment"
+intents = ["experiment", "evaluate", "benchmark", "test-hypothesis"]
+required = ["AGENTS.md", "docs/AUTONOMOUS-WORK.md", "docs/GIT-AND-HANDOFF.md", ".agents/skills/autonomous-exploration/SKILL.md"]
+item_required = ["README.md", ".agent/mission.toml"]
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "delegate-subagents"
+intents = ["delegate", "subagent", "parallelize", "review"]
+required = ["AGENTS.md", "docs/SUBAGENTS.md", "governance/agent-roles.toml", ".agents/skills/delegate-subagents/SKILL.md"]
+item_required = ["README.md", ".agent/mission.toml", ".agent/handoff.md"]
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "knowledge-promotion"
+intents = ["knowledge", "curate", "promote-knowledge", "extract-skill"]
+required = ["AGENTS.md", "knowledge/README.md", "docs/SELF-EVOLUTION.md", "docs/INFORMATION-FLOW.md"]
+item_required = ["README.md", ".agent/mission.toml"]
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "checkpoint-handoff"
+intents = ["checkpoint", "handoff", "stop", "finish-run"]
+required = ["AGENTS.md", "docs/GIT-AND-HANDOFF.md", ".agents/skills/checkpoint-handoff/SKILL.md"]
+item_required = ["README.md", ".agent/mission.toml", ".agent/handoff.md"]
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "workspace-evolution"
+intents = ["evolve-workspace", "schema-change", "policy-change", "migration"]
+required = ["AGENTS.md", "docs/SELF-EVOLUTION.md", "docs/SCHEMAS.md", "docs/GOVERNANCE.md"]
+item_required = []
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "service-operation"
+intents = ["service", "deploy", "rollback", "healthcheck"]
+required = ["AGENTS.md", "docs/OPERATING-PROTOCOL.md", "governance/catalog.toml"]
+item_required = ["README.md"]
+required_for_validation = true
+stop_on_missing = true
+
+[[routes]]
+id = "public-release"
+intents = ["release", "publish", "public-release"]
+required = ["AGENTS.md", "docs/PUBLIC-RELEASE.md", "SECURITY.md", "CHANGELOG.md"]
+item_required = []
+required_for_validation = false
+stop_on_missing = true

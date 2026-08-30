@@ -1,0 +1,357 @@
+
+schema_version = 1
+
+[protocol]
+name = "Autonomous Workspace Protocol"
+version = "0.2.0-alpha.1"
+item_control_dir = ".agent"
+derived_views_dir = ".workspace/views"
+runtime_dir = ".workspace/runtime"
+event_log = "events/events.jsonl"
+handoff_file = "handoff.md"
+default_lease_ttl_seconds = 1800
+max_lease_ttl_seconds = 86400
+
+[authority]
+workspace_rules = ["AGENTS.md", "workspace.toml", "governance/protocol.toml"]
+current_facts = ["filesystem", "governance/catalog.toml", "governance/debts.toml", "governance/automations.toml", "work-item .agent objects"]
+evidence = [".ai manifests", "existing evidence files", "Git commits"]
+knowledge = ["knowledge/catalog.toml", "knowledge/curated"]
+derived = [".workspace/views", ".workspace/runtime"]
+
+[objects.mission]
+storage = "mission.toml"
+cardinality = "one"
+id_prefix = "MISSION"
+initial_status = "draft"
+statuses = ["draft", "active", "paused", "completed", "retired"]
+terminal_statuses = ["completed", "retired"]
+required = ["id", "item", "title", "objective", "owner", "status", "created_at", "updated_at"]
+
+[objects.agenda]
+storage = "agenda"
+cardinality = "many"
+id_prefix = "AGENDA"
+initial_status = "candidate"
+statuses = ["candidate", "selected", "active", "observing", "blocked", "deferred", "completed", "rejected", "superseded"]
+terminal_statuses = ["completed", "rejected", "superseded"]
+required = ["id", "item", "title", "rationale", "status", "created_at", "updated_at"]
+
+[objects.search-node]
+storage = "search"
+cardinality = "many"
+id_prefix = "NODE"
+initial_status = "open"
+statuses = ["open", "expanded", "testing", "waiting", "pruned", "validated", "invalidated", "superseded"]
+terminal_statuses = ["pruned", "validated", "invalidated", "superseded"]
+required = ["id", "item", "question", "status", "created_at", "updated_at"]
+
+[objects.hypothesis]
+storage = "hypotheses"
+cardinality = "many"
+id_prefix = "HYP"
+initial_status = "proposed"
+statuses = ["proposed", "ready", "testing", "supported", "refuted", "inconclusive", "superseded"]
+terminal_statuses = ["supported", "refuted", "superseded"]
+required = ["id", "item", "statement", "falsification", "status", "created_at", "updated_at"]
+
+[objects.experiment]
+storage = "experiments"
+cardinality = "many"
+id_prefix = "EXP"
+initial_status = "proposed"
+statuses = ["proposed", "ready", "running", "evaluating", "accepted", "rejected", "inconclusive", "blocked", "cancelled"]
+terminal_statuses = ["accepted", "rejected", "inconclusive", "cancelled"]
+required = ["id", "item", "objective", "method", "status", "created_at", "updated_at"]
+
+[objects.evaluation]
+storage = "evaluations"
+cardinality = "many"
+id_prefix = "EVAL"
+initial_status = "completed"
+statuses = ["completed", "superseded"]
+terminal_statuses = ["completed", "superseded"]
+required = ["id", "item", "experiment_id", "evaluator", "result", "summary", "status", "created_at", "updated_at"]
+
+[objects.assignment]
+storage = "assignments"
+cardinality = "many"
+id_prefix = "ASSIGN"
+initial_status = "planned"
+statuses = ["planned", "ready", "active", "submitted", "integrating", "accepted", "rejected", "blocked", "cancelled", "expired"]
+terminal_statuses = ["accepted", "rejected", "cancelled", "expired"]
+required = ["id", "item", "role", "objective", "integrator", "status", "created_at", "updated_at"]
+
+[[transitions]]
+object = "mission"
+from = "draft"
+to = "active"
+
+[[transitions]]
+object = "mission"
+from = "active"
+to = "paused"
+
+[[transitions]]
+object = "mission"
+from = "paused"
+to = "active"
+
+[[transitions]]
+object = "mission"
+from = "active"
+to = "completed"
+requires = ["reason"]
+
+[[transitions]]
+object = "mission"
+from = "active"
+to = "retired"
+requires = ["reason"]
+
+[[transitions]]
+object = "agenda"
+from = "candidate"
+to = "selected"
+requires = ["reason"]
+
+[[transitions]]
+object = "agenda"
+from = "selected"
+to = "active"
+
+[[transitions]]
+object = "agenda"
+from = "active"
+to = "observing"
+requires = ["reason"]
+
+[[transitions]]
+object = "agenda"
+from = "observing"
+to = "active"
+
+[[transitions]]
+object = "agenda"
+from = "active"
+to = "blocked"
+requires = ["reason"]
+
+[[transitions]]
+object = "agenda"
+from = "blocked"
+to = "active"
+
+[[transitions]]
+object = "agenda"
+from = "candidate"
+to = "deferred"
+requires = ["reason"]
+
+[[transitions]]
+object = "agenda"
+from = "deferred"
+to = "candidate"
+
+[[transitions]]
+object = "agenda"
+from = "active"
+to = "completed"
+requires = ["evidence"]
+
+[[transitions]]
+object = "agenda"
+from = "candidate"
+to = "rejected"
+requires = ["reason"]
+
+[[transitions]]
+object = "agenda"
+from = "candidate"
+to = "superseded"
+requires = ["reason"]
+
+[[transitions]]
+object = "search-node"
+from = "open"
+to = "expanded"
+
+[[transitions]]
+object = "search-node"
+from = "expanded"
+to = "testing"
+
+[[transitions]]
+object = "search-node"
+from = "testing"
+to = "waiting"
+requires = ["reason"]
+
+[[transitions]]
+object = "search-node"
+from = "waiting"
+to = "testing"
+
+[[transitions]]
+object = "search-node"
+from = "testing"
+to = "validated"
+requires = ["evidence"]
+
+[[transitions]]
+object = "search-node"
+from = "testing"
+to = "invalidated"
+requires = ["evidence"]
+
+[[transitions]]
+object = "search-node"
+from = "open"
+to = "pruned"
+requires = ["reason"]
+
+[[transitions]]
+object = "search-node"
+from = "expanded"
+to = "pruned"
+requires = ["reason"]
+
+[[transitions]]
+object = "hypothesis"
+from = "proposed"
+to = "ready"
+requires = ["reason"]
+
+[[transitions]]
+object = "hypothesis"
+from = "ready"
+to = "testing"
+
+[[transitions]]
+object = "hypothesis"
+from = "testing"
+to = "supported"
+requires = ["evidence"]
+
+[[transitions]]
+object = "hypothesis"
+from = "testing"
+to = "refuted"
+requires = ["evidence"]
+
+[[transitions]]
+object = "hypothesis"
+from = "testing"
+to = "inconclusive"
+requires = ["evidence"]
+
+[[transitions]]
+object = "hypothesis"
+from = "proposed"
+to = "superseded"
+requires = ["reason"]
+
+[[transitions]]
+object = "experiment"
+from = "proposed"
+to = "ready"
+requires = ["reason"]
+
+[[transitions]]
+object = "experiment"
+from = "ready"
+to = "running"
+
+[[transitions]]
+object = "experiment"
+from = "running"
+to = "evaluating"
+requires = ["evidence"]
+
+[[transitions]]
+object = "experiment"
+from = "evaluating"
+to = "accepted"
+requires = ["evaluation"]
+
+[[transitions]]
+object = "experiment"
+from = "evaluating"
+to = "rejected"
+requires = ["evaluation"]
+
+[[transitions]]
+object = "experiment"
+from = "evaluating"
+to = "inconclusive"
+requires = ["evaluation"]
+
+[[transitions]]
+object = "experiment"
+from = "running"
+to = "blocked"
+requires = ["reason"]
+
+[[transitions]]
+object = "experiment"
+from = "blocked"
+to = "ready"
+requires = ["reason"]
+
+[[transitions]]
+object = "experiment"
+from = "proposed"
+to = "cancelled"
+requires = ["reason"]
+
+[[transitions]]
+object = "assignment"
+from = "planned"
+to = "ready"
+requires = ["reason"]
+
+[[transitions]]
+object = "assignment"
+from = "ready"
+to = "active"
+
+[[transitions]]
+object = "assignment"
+from = "active"
+to = "submitted"
+requires = ["evidence"]
+
+[[transitions]]
+object = "assignment"
+from = "submitted"
+to = "integrating"
+
+[[transitions]]
+object = "assignment"
+from = "integrating"
+to = "accepted"
+requires = ["evidence"]
+
+[[transitions]]
+object = "assignment"
+from = "integrating"
+to = "rejected"
+requires = ["evidence"]
+
+[[transitions]]
+object = "assignment"
+from = "active"
+to = "blocked"
+requires = ["reason"]
+
+[[transitions]]
+object = "assignment"
+from = "blocked"
+to = "ready"
+requires = ["reason"]
+
+[[transitions]]
+object = "assignment"
+from = "planned"
+to = "cancelled"
+requires = ["reason"]

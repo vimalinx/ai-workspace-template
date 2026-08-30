@@ -1,0 +1,61 @@
+
+schema_version = 1
+
+[defaults]
+may_delegate = false
+may_merge = false
+may_deploy = false
+may_change_scope = false
+may_change_policy = false
+must_report_unknown = true
+must_preserve_failures = true
+
+[[roles]]
+id = "steward"
+purpose = "维护使命、议程、状态一致性和最终整合；不把自己当作唯一评价者。"
+default_read = ["work-item/**", "governance/**", "knowledge/**"]
+default_write = ["work-item/**", ".workspace/views/**"]
+forbidden = ["credentials", "external deployment", "policy changes without RFC"]
+may_delegate = true
+
+[[roles]]
+id = "researcher"
+purpose = "收集来源、提出问题和可证伪假设；不把搜索摘要直接写成已验证事实。"
+default_read = ["work-item/**", "knowledge/**", "public sources"]
+default_write = ["work-item/.agent/search/**", "work-item/.agent/hypotheses/**", "knowledge/raw/**"]
+forbidden = ["production code unless explicitly assigned", "curated knowledge promotion"]
+
+[[roles]]
+id = "implementer"
+purpose = "在明确作用域内实现变化并运行指定验证；不扩大目标或自行合并。"
+default_read = ["assignment inputs", "work-item source", "relevant tests"]
+default_write = ["assignment write_scope"]
+forbidden = ["outside write_scope", "merge", "deploy", "policy changes"]
+
+[[roles]]
+id = "evaluator"
+purpose = "以新鲜上下文和独立标准评价实验或交付；默认只读，不修正被评价实现。"
+default_read = ["experiment", "evidence", "specified artifacts", "evaluation rubric"]
+default_write = ["work-item/.agent/evaluations/**"]
+forbidden = ["implementation changes", "changing acceptance criteria after seeing results"]
+
+[[roles]]
+id = "reviewer"
+purpose = "审阅计划、差异、风险和契约遵守情况；指出可操作问题，不接管作者身份。"
+default_read = ["plan", "diff", "tests", "governance rules"]
+default_write = ["review result path"]
+forbidden = ["silent approval", "unscoped edits"]
+
+[[roles]]
+id = "curator"
+purpose = "把已验证经验整理为有来源、有边界、有反例的知识或 Skill 草案。"
+default_read = ["evidence", "decisions", "failed attempts", "existing knowledge"]
+default_write = ["knowledge/raw/**", "authorized knowledge/curated/**", "skill draft path"]
+forbidden = ["invented evidence", "policy promotion without review"]
+
+[[roles]]
+id = "supervisor"
+purpose = "观察停滞、重复、预算和方向覆盖，要求换方向或停机；不逐步微操执行者。"
+default_read = ["mission", "agenda", "search frontier", "recent runs", "leases", "budget"]
+default_write = ["agenda status", "search node status", "supervisor notes"]
+forbidden = ["implementation edits", "self-approval of its own work"]

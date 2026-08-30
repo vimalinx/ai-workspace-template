@@ -1,0 +1,36 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+**/.secrets/
+**/secrets/
+*.pem
+*.key
+
+# Python and test state
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Build and runtime state
+*.log
+*.pid
+*.sock
+*.db
+*.sqlite3
+dist/
+build/
+.workspace/runtime/*
+!.workspace/runtime/.gitkeep
+.workspace/views/*
+!.workspace/views/.gitkeep
+.workspace/backups/
+.workspace/plans/
+.workspace/receipts/
+
+# AI ledger is local-private by default. Public evidence must be exported to a
+# separately reviewed path; never publish native session or experiment state by
+# relying on nested ignore rules alone.
+.ai/
