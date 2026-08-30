@@ -4,7 +4,7 @@ All notable changes are documented here. This project follows semantic versionin
 
 ## [Unreleased]
 
-## [0.2.0-alpha.1] - 2026-08-30
+## [0.2.0-alpha.1] - 2026-08-31
 
 ### Added
 
@@ -12,19 +12,12 @@ All notable changes are documented here. This project follows semantic versionin
 - Add detailed operating, autonomous exploration, subagent, indexing, Git, self-evolution, schema, and CLI documentation.
 - Add reusable Skills for governed work-item operation, autonomous exploration, subagent delegation, and checkpoint handoff.
 - Add deterministic protocol validation and integration with workspace maintenance, audit, bootstrap, CI, and release checks.
+- Add a self-contained natural-language handoff that lets any coding Agent with local file and terminal access detect a template copy, empty target, or existing folder and complete safe additive initialization plus separately receipted local activation.
 
 ### Changed
 
 - Treat the workspace rather than a model session as the durable orchestration and continuity layer.
 - Extend bootstrap adoption so newly governed workspaces receive the autonomous protocol and its complete indexes instead of an incomplete prompt-only convention.
-
-
-### Added
-
-- Add a self-contained natural-language handoff that lets any coding Agent with local file and terminal access detect a template copy, empty target, or existing folder and complete safe additive initialization plus separately receipted local activation.
-
-### Changed
-
 - Rewrite the public README around human-AI workflows and practical use cases, front-load a public-repository URL instruction that any web-capable coding Agent can follow, add a formal project entry, and use native Mermaid diagrams for the evidence loop, complete work-item routing and state transitions, approval boundaries, and adoption/activation/rollback.
 
 ### Fixed
